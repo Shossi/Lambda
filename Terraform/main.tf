@@ -65,26 +65,26 @@ resource "aws_api_gateway_resource" "resource" {
 resource "aws_api_gateway_method" "method" {
   rest_api_id   = aws_api_gateway_rest_api.api.id
   resource_id   = aws_api_gateway_resource.resource.id
-  http_method   = "GET"
+  http_method   = "ANY"
   authorization = "NONE"
-  request_parameters = {
-    "method.request.querystring.num1" = false
-    "method.request.querystring.num2" = false
-  #  "method.request.path.proxy" = true
-  }
+//  request_parameters = {
+//    "method.request.querystring.num1" = false
+//    "method.request.querystring.num2" = false
+//    "method.request.path.proxy" = true
+//  }
 }
 
 resource "aws_api_gateway_integration" "integration" {
   rest_api_id             = aws_api_gateway_rest_api.api.id
   resource_id             = aws_api_gateway_resource.resource.id
   http_method             = aws_api_gateway_method.method.http_method
-  integration_http_method = "GET"
+  integration_http_method = "ANY"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.test_lambda.invoke_arn
-  request_parameters = {
-    "integration.request.querystring.num1" = "method.request.querystring.num1"
-    "integration.request.querystring.num2" = "method.request.querystring.num2"
-  }
+//  request_parameters = {
+//    "integration.request.querystring.num1" = "method.request.querystring.num1"
+//    "integration.request.querystring.num2" = "method.request.querystring.num2"
+//  }
 }
 
 # Lambda
@@ -98,7 +98,7 @@ resource "aws_lambda_permission" "apigw_lambda" {
 
 resource "aws_api_gateway_deployment" "deploy" {
   depends_on = [
-    aws_api_gateway_integration.lambda_root,
+//    aws_api_gateway_integration.lambda_root,
     aws_api_gateway_integration.integration
   ]
   rest_api_id = aws_api_gateway_rest_api.api.id
@@ -177,52 +177,28 @@ resource "aws_api_gateway_method_response" "response_200" {
   http_method = aws_api_gateway_method.method.http_method
   status_code = "200"
 }
-
-resource "aws_api_gateway_method" "proxy_root" {
-  rest_api_id   = aws_api_gateway_rest_api.api.id
-  resource_id   = aws_api_gateway_rest_api.api.root_resource_id
-  http_method   = "GET"
-  authorization = "NONE"
-  request_parameters = {
-    "method.request.querystring.num1" = false
-    "method.request.querystring.num2" = false
-    #  "method.request.path.proxy" = true
-  }
-}
-resource "aws_api_gateway_integration" "lambda_root" {
-  rest_api_id = aws_api_gateway_rest_api.api.id
-  resource_id = aws_api_gateway_method.proxy_root.resource_id
-  http_method = aws_api_gateway_method.proxy_root.http_method
-  request_parameters = {
-    "integration.request.querystring.num1" = "method.request.querystring.num1"
-    "integration.request.querystring.num2" = "method.request.querystring.num2"
-  }
-
-  integration_http_method = "GET"
-  type                    = "AWS_PROXY"
-  uri                     = aws_lambda_function.test_lambda.invoke_arn
-}
-resource "aws_api_gateway_rest_api_policy" "test" {
-  rest_api_id = aws_api_gateway_rest_api.api.id
-
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "AWS": "*"
-      },
-      "Action": "execute-api:Invoke",
-      "Resource": "${aws_api_gateway_rest_api.api.execution_arn}",
-      "Condition": {
-        "IpAddress": {
-          "aws:SourceIp": "123.123.123.123/32"
-        }
-      }
-    }
-  ]
-}
-EOF
-}
+//
+//resource "aws_api_gateway_method" "proxy_root" {
+//  rest_api_id   = aws_api_gateway_rest_api.api.id
+//  resource_id   = aws_api_gateway_rest_api.api.root_resource_id
+//  http_method   = "ANY"
+//  authorization = "NONE"
+////  request_parameters = {
+////    "method.request.querystring.num1" = false
+////    "method.request.querystring.num2" = false
+////    #  "method.request.path.proxy" = true
+////  }
+//}
+//resource "aws_api_gateway_integration" "lambda_root" {
+//  rest_api_id = aws_api_gateway_rest_api.api.id
+//  resource_id = aws_api_gateway_method.proxy_root.resource_id
+//  http_method = aws_api_gateway_method.proxy_root.http_method
+////  request_parameters = {
+////    "integration.request.querystring.num1" = "method.request.querystring.num1"
+////    "integration.request.querystring.num2" = "method.request.querystring.num2"
+////  }
+//
+//  integration_http_method = "ANY"
+//  type                    = "AWS_PROXY"
+//  uri                     = aws_lambda_function.test_lambda.invoke_arn
+//}
